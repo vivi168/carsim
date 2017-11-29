@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 class Constant:
   RHO = 1.205
@@ -54,24 +55,7 @@ class Engine:
       for_rpm = self.current_rpm
 
     # linear interpolation to get torque for a given rpm
-    i = 0
-    for r in self.rpm_p:
-      if r >= for_rpm:
-        break
-      i += 1
-
-    if i == 0:
-      return self.torque_p[0]
-    elif i >= len(self.torque_p):
-      return self.torque_p[len(self.torque_p)-1]
-
-    t0 = self.torque_p[i-1]
-    t1 = self.torque_p[i]
-    r0 = self.rpm_p[i-1]
-    r1 = self.rpm_p[i]
-
-    dT_dN = (t1 - t0) / (r1 - r0)
-    return t0 + (dT_dN * (for_rpm - r0))
+    return np.interp(for_rpm, self.rpm_p, self.torque_p)
 
 
     def getPower(self, rpm):
