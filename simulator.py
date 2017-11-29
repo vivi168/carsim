@@ -51,8 +51,8 @@ class Engine:
                rpm_p, torque_p):
 
     self.current_rpm = 0
-    self.rpm_p = rpm_p
-    self.torque_p = torque_p
+    self.rpm_p = rpm_p # list of rpm values, x axis
+    self.torque_p = torque_p # list of torque values, y axis
 
 
   def getTorque(self, for_rpm=None):
