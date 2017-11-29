@@ -101,28 +101,3 @@ class Car:
     # Wr = (b/L)*W + (h/L)*M*a,
     b = self.wheel_base_length/2 + self.CG_offset
     return (b/self.wheel_base_length) * self.mass * Constant.G + (self.CG_height/self.wheel_base_length) * self.mass * accel
-
-
-
-
-rear_wheel = Wheel(0.3, 20)
-front_wheel  = Wheel(0,3, 20)
-flywheel = Wheel(0.2, 7)
-
-rp = [1400, 1600, 2500, 3200, 4000, 5000, 5500, 6000, 6250, 6400, 6500]
-tp = [30, 100, 210, 209, 200, 190, 180, 163, 150, 145, 65]
-
-vr38dett = Engine(rp, tp)
-
-print(vr38dett.getTorque(6456))
-
-tr = Transmission(0, [5,4,3,2,1], 2.75, 0.3)
-
-# print(tr.getRatio(8))
-
-gtr = Car(1500, 2.5, 0, 1, 5, front_wheel, rear_wheel, 0.3, 2.25, tr, vr38dett)
-
-print(gtr.weight_front_wheel(4.9))
-print(gtr.weight_rear_wheel(4.9))
-
-# print(Wheel.tire_spec_to_wheel_radius(225, 45, 17))
