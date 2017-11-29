@@ -42,9 +42,40 @@ class Transmission:
 
 class Engine:
   def __init__(self,
-               torqueCurve):
-    self.torqueCurve = torqueCurve
+               rpm_p, torque_p):
 
+    self.current_rpm = 0
+    self.rpm_p = rpm_p
+    self.torque_p = torque_p
+
+
+  def getTorque(self, for_rpm=None):
+    if not for_rpm:
+      for_rpm = self.current_rpm
+
+    # linear interpolation to get torque for a given rpm
+    i = 0
+    for r in self.rpm_p:
+      if r >= for_rpm:
+        break
+      i += 1
+
+    if i == 0:
+      return self.torque_p[0]
+    elif i >= len(self.torque_p):
+      return self.torque_p[len(self.torque_p)-1]
+
+    t0 = self.torque_p[i-1]
+    t1 = self.torque_p[i]
+    r0 = self.rpm_p[i-1]
+    r1 = self.rpm_p[i]
+
+    dT_dN = (t1 - t0) / (r1 - r0)
+    return t0 + (dT_dN * (for_rpm - r0))
+
+
+    def getPower(self, rpm):
+      return self.getTorque(rpm) * self.current_rpm /60 * 2 * Constant.PI;
 
 
 
@@ -89,8 +120,12 @@ rear_wheel = Wheel(0.3, 20)
 front_wheel  = Wheel(0,3, 20)
 flywheel = Wheel(0.2, 7)
 
-vr38dett = Engine([])
+rp = [1400, 1600, 2500, 3200, 4000, 5000, 5500, 6000, 6250, 6400, 6500]
+tp = [30, 100, 210, 209, 200, 190, 180, 163, 150, 145, 65]
 
+vr38dett = Engine(rp, tp)
+
+print(vr38dett.getTorque(6456))
 
 tr = Transmission(0, [5,4,3,2,1], 2.75, 0.3)
 
