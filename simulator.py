@@ -24,7 +24,7 @@ class Wheel:
 class Transmission:
   def __init__(self,
                shift_time, ratios, diff_ratio, friction_loss):
-    self.shift_time = shift_time
+    self.shift_time = shift_time # shift time, s
     self.ratios = ratios # gears ratios
     self.diff_ratio = diff_ratio # differential ratio
     self.friction_loss = friction_loss
@@ -38,8 +38,13 @@ class Transmission:
 
     return self.ratios[for_gear - 1]
 
-  def getTorque(T_eng):
+  def getTorqueAtWheel(T_eng):
     return T_eng * self.getRatio() * self.diff_ratio * (1 - self.friction_loss)
+
+  def shiftUp(self):
+    if self.current_gear < len(self.ratios):
+      self.current_gear += 1
+    return self.current_gear
 
 class Engine:
   def __init__(self,
