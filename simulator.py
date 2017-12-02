@@ -150,7 +150,7 @@ def main():
   s = 0.0 # distance, m
   v = 0.0 # velocity, m/s
   launch_rpm = 3000
-  red_line = 6500
+  red_line = 6200
 
   t_step = 0.01 # time step, s
   t_max = 90.0 # end time, s
@@ -169,8 +169,9 @@ def main():
     "RPM: ",
     "gear: ",
     "T_eng: ",
-    # "T_wheel: ",
-    # "F_wheel_max: ",
+    "T_wheel: ",
+    "F_wheel: ",
+    "F_wheel_max: ",
     "F_drive",
     "F_drag: ",
     "F_rr: ",
@@ -194,12 +195,12 @@ def main():
     T_eng = car.engine.get_torque()
     T_wheel = T_eng * car.transmission.get_ratio() * (1 - car.transmission.friction_loss)
     F_wheel = T_wheel / car.drive_wheel.radius
-    F_wheel_max = car.F_max(a)
+    F_wheel_max = car.F_max(a) * 2
 
-    # if F_wheel > F_wheel_max:
-    #   F_drive = F_wheel_max
-    # else:
-    F_drive = F_wheel
+    if F_wheel > F_wheel_max:
+      F_drive = F_wheel_max
+    else:
+      F_drive = F_wheel
 
     F_drag = car.F_drag()
     F_rr = car.F_rr()
@@ -207,7 +208,7 @@ def main():
 
     a = F_net / car.mass
     car.v = a * t_step + car.v
-    car.s = 0.5 * a * t_step**2 + car.v * t
+    car.s = 0.5 * a * t_step**2 + car.v * t_step + car.s
 
     if (car.v * 3.6 / 1.61) > 30 and t_0_30 == 0:
       t_0_30 = t
@@ -225,8 +226,9 @@ def main():
       car.engine.current_rpm,
       car.transmission.current_gear,
       T_eng,
-      # T_wheel,
-      # F_wheel_max,
+      T_wheel,
+      F_wheel,
+      F_wheel_max,
       F_drive,
       F_drag,
       F_rr,
@@ -244,6 +246,10 @@ def main():
   print("0-100mph: " + str(t_0_100))
   print("1/4 mi spd: " + str(v_1_4_m))
   print("1/4 mi: " + str(t_1_4_m))
+  print(car.transmission.current_gear)
+  print(car.engine.current_rpm)
+  print(car.v)
+  print(car.s)
 
   # print(result)
   with open("output.csv", "w") as f:
