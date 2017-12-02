@@ -136,18 +136,16 @@ def main():
   # rpm_p, torque_p
   rp = [1400, 1600, 2500, 3200, 4000, 5000, 5500, 6000, 6250, 6400, 6500]
   tp = [30, 100, 210, 209, 200, 190, 180, 163, 150, 145, 65]
-  tfsi20 = Engine(rp, tp)
+  eg = Engine(rp, tp)
 
   # mass, wheel_base_length, CG_offset, CG_height,
   # rear_wheel, front_wheel, flywheel,
   # C_d, A,
   # transmission, engine
-  golf_gti = Car(1336, 2.578, 0, 1,
+  car = Car(1336, 2.578, 0, 1,
                  rear_wheel, front_wheel, flywheel,
                  0.32, 2.230,
-                 tr, tfsi20)
-
-  car = golf_gti
+                 tr, eg)
 
   s = 0.0 # distance, m
   v = 0.0 # velocity, m/s
