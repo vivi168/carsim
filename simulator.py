@@ -89,18 +89,19 @@ class Car:
     self.transmission = transmission
     self.engine = engine
 
+    self.a = 0 # acceleration, m.s^-2
     self.v = 0 # velocity, m.s^-1
     self.s = 0 # position, m
 
-  def W_f(self, a=0):
+  def W_f(self):
     # Wf = (c/L)*W - (h/L)*M*a, N
     c = self.wheel_base_length/2 - self.CG_offset
-    return (c/self.wheel_base_length) * self.mass * Constant.G  - (self.CG_height/self.wheel_base_length) * self.mass * a
+    return (c/self.wheel_base_length) * self.mass * Constant.G  - (self.CG_height/self.wheel_base_length) * self.mass * self.a
 
-  def W_r(self, a=0):
+  def W_r(self):
     # Wr = (b/L)*W + (h/L)*M*a, N
     b = self.wheel_base_length/2 + self.CG_offset
-    return (b/self.wheel_base_length) * self.mass * Constant.G + (self.CG_height/self.wheel_base_length) * self.mass * a
+    return (b/self.wheel_base_length) * self.mass * Constant.G + (self.CG_height/self.wheel_base_length) * self.mass * self.a
 
   def F_drag(self):
     return 0.5 * self.C_d * self.A * Constant.RHO * self.v**2
@@ -111,11 +112,11 @@ class Car:
   def F_rr(self):
     return self.C_rr() * self.mass * Constant.G
 
-  def F_max(self, a=0):
+  def F_max(self):
     # if self.rwd:
-    #   W = self.W_r(a)
+    #   W = self.W_r()
     # else:
-    #   W = self.W_f(a)
+    #   W = self.W_f()
     W = self.mass * Constant.G * 0.5
 
     return self.drive_wheel.tire_mu * W
@@ -148,8 +149,7 @@ def main():
                  0.32, 2.230,
                  tr, eg)
 
-  s = 0.0 # distance, m
-  v = 0.0 # velocity, m/s
+
   launch_rpm = 3000
   red_line = 6400
 
@@ -157,7 +157,6 @@ def main():
   t_max = 90.0 # end time, s
   step = 0
   t = 0
-  a = 0
 
   t_0_30 = 0
   t_0_60 = 0
@@ -197,7 +196,7 @@ def main():
     T_eng = car.engine.get_torque()
     T_wheel = T_eng * car.transmission.get_ratio() * (1 - car.transmission.friction_loss)
     F_wheel = T_wheel / car.drive_wheel.radius
-    F_wheel_max = car.F_max(a)
+    F_wheel_max = car.F_max()
 
     if F_wheel > F_wheel_max:
       F_drive = F_wheel_max
@@ -208,8 +207,8 @@ def main():
     F_rr = car.F_rr()
     F_net = F_drive - F_drag - F_rr
 
-    a = F_net / car.mass
-    car.v = a * t_step + car.v
+    car.a = F_net / car.mass
+    car.v = car.a * t_step + car.v
     car.s = car.v * t_step + car.s
 
     if (car.v * 3.6 / 1.61) > 30 and t_0_30 == 0:
@@ -237,7 +236,7 @@ def main():
       F_drag,
       F_rr,
       F_net,
-      a,
+      car.a,
       car.v,
       car.s
     ])
