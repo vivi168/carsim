@@ -112,10 +112,11 @@ class Car:
     return self.C_rr() * self.mass * Constant.G
 
   def F_max(self, a=0):
-    if self.rwd:
-      W = self.W_r(a)
-    else:
-      W = self.W_f(a)
+    # if self.rwd:
+    #   W = self.W_r(a)
+    # else:
+    #   W = self.W_f(a)
+    W = self.mass * Constant.G * 0.5
 
     return self.drive_wheel.tire_mu * W
 
@@ -196,7 +197,7 @@ def main():
     T_eng = car.engine.get_torque()
     T_wheel = T_eng * car.transmission.get_ratio() * (1 - car.transmission.friction_loss)
     F_wheel = T_wheel / car.drive_wheel.radius
-    F_wheel_max = car.F_max(a) * 2
+    F_wheel_max = car.F_max(a)
 
     if F_wheel > F_wheel_max:
       F_drive = F_wheel_max
