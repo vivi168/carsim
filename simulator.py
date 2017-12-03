@@ -210,7 +210,7 @@ def main():
 
     a = F_net / car.mass
     car.v = a * t_step + car.v
-    car.s = 0.5 * a * t_step**2 + car.v * t_step + car.s
+    car.s = car.v * t_step + car.s
 
     if (car.v * 3.6 / 1.61) > 30 and t_0_30 == 0:
       t_0_30 = t
