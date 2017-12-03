@@ -161,6 +161,7 @@ def main():
   t_0_30 = 0
   t_0_60 = 0
   t_0_100 = 0
+  t_0_120 = 0
   t_1_4_m = 0
   v_1_4_m = 0
 
@@ -216,6 +217,8 @@ def main():
       t_0_60 = t
     if (car.v * 3.6 / 1.61) > 100 and t_0_100 == 0:
       t_0_100 = t
+    if (car.v * 3.6 / 1.61) > 120 and t_0_120 == 0:
+      t_0_120 = t
     if car.s  > 400 and t_1_4_m == 0 and v_1_4_m == 0:
       t_1_4_m = t
       v_1_4_m = car.v * 3.6 / 1.61
@@ -244,6 +247,7 @@ def main():
   print("0-30mph: " + str(t_0_30))
   print("0-60mph: " + str(t_0_60))
   print("0-100mph: " + str(t_0_100))
+  print("0-120mph: " + str(t_0_120))
   print("1/4 mi spd: " + str(v_1_4_m))
   print("1/4 mi: " + str(t_1_4_m))
   print(car.transmission.current_gear)
