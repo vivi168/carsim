@@ -150,7 +150,7 @@ def main():
   s = 0.0 # distance, m
   v = 0.0 # velocity, m/s
   launch_rpm = 3000
-  red_line = 6200
+  red_line = 6400
 
   t_step = 0.01 # time step, s
   t_max = 90.0 # end time, s
