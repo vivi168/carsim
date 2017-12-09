@@ -3,11 +3,15 @@ import numpy as np
 import csv
 import json
 import inspect
+import fractions
 
 class Constant:
   RHO = 1.205
   PI = math.pi
   G = 9.80665002864
+  CM_PER_INCH = 2.54
+  MI_PER_M = 0.000621371
+  MPH_PER_MS = 2.23694
 
 class ActsAsDict:
     def __init__(self):
@@ -21,7 +25,7 @@ class ActsAsDict:
 
 class Wheel(ActsAsDict):
   def __init__(self, section_width, aspect_ratio, rim_diameter, mu, pressure):
-    self.radius = ((rim_diameter * 2.54 / 2) + (section_width/10 * aspect_ratio/100)) / 100 # m
+    self.radius = ((rim_diameter * Constant.CM_PER_INCH / 2) + (section_width/10 * aspect_ratio/100)) / 100 # m
     self.tire_mu = mu # tire friction coefficient
     self.tire_pressure = pressure # tire pressure, bar
 
@@ -100,25 +104,52 @@ class Car:
       data = json.load(car_data)
       return Car(**data)
 
+class Logger:
+  def __init__(self, speed_points=[60, 100, 120, 200], position_points=[0.25, 0.5, 1]):
+    self.speed_points = speed_points
+    self.position_points = position_points
+    self.speed_summary = {p:None for p in speed_points}
+    self.position_summary = {p:None for p in position_points}
+
+  def __str__(self):
+    summary = []
+    for p in self.speed_points:
+      if self.speed_summary[p]:
+        summary.append("0-%s mph: %.2fs" % (p, self.speed_summary[p]))
+
+    for p in self.position_points:
+      if self.position_summary[p]:
+        summary.append("%s mi time: %.2f mph" % (fractions.Fraction(p), self.position_summary[p][0]))
+        summary.append("%s mi speed: %.2f s" % (fractions.Fraction(p), self.position_summary[p][1]))
+
+    return "\n".join(summary)
+
+  def log(self, s, v, t):
+    self.check_speed(v, t)
+    self.check_position(s, v, t)
+
+  def check_speed(self, v, t):
+    for p in self.speed_points:
+      if not self.speed_summary[p] and (v * Constant.MPH_PER_MS) > p:
+        self.speed_summary[p] = t
+
+  def check_position(self, s, v, t):
+    for p in self.position_points:
+      if not self.position_summary[p] and (s * Constant.MI_PER_M)  > p:
+        self.position_summary[p] = [t, v * Constant.MPH_PER_MS]
 
 def main():
 
-  car = Car.from_json('350z_2005.txt')
-  # car = Car.from_json('vw_golf_gti_2007.json')
+  # car = Car.from_json('350z_2005.txt')
+  car = Car.from_json('vw_golf_gti_2007.json')
 
   t_step = 0.01 # time step, s
   t_max = 360.0 # end time, s
-  step = 0
   t = 0
 
-  t_0_30 = 0
-  t_0_60 = 0
-  t_0_100 = 0
-  t_0_120 = 0
-  t_1_4_m = 0
-  v_1_4_m = 0
+  logger = Logger()
 
-  result = [[ "time: ", "RPM: ", "gear: ", "T_eng: ", "T_wheel: ", "F_wheel: ", "F_wheel_max: ", "F_drive", "F_drag: ", "F_rr: ", "F_net: ", "a: ", "v: ", "s: " ]]
+  result = [["time", "RPM", "gear", "T_eng", "T_wheel", "F_wheel", "F_wheel_max", "F_drive", "F_drag", "F_rr", "F_net", "a", "v", "s"]]
 
   while t < t_max:
     car.engine.current_rpm = (car.v / car.wheel.radius) * car.transmission.get_ratio() * 60 / (2*Constant.PI)
@@ -148,36 +179,13 @@ def main():
     car.v = car.a * t_step + car.v
     car.s = car.v * t_step + car.s
 
-    if (car.v * 3.6 / 1.61) > 30 and t_0_30 == 0:
-      t_0_30 = t
-    if (car.v * 3.6 / 1.61) > 60 and t_0_60 == 0:
-      t_0_60 = t
-    if (car.v * 3.6 / 1.61) > 100 and t_0_100 == 0:
-      t_0_100 = t
-    if (car.v * 3.6 / 1.61) > 120 and t_0_120 == 0:
-      t_0_120 = t
-    if car.s  > 400 and t_1_4_m == 0 and v_1_4_m == 0:
-      t_1_4_m = t
-      v_1_4_m = car.v * 3.6 / 1.61
+    result.append([t, car.engine.current_rpm, car.transmission.current_gear, T_eng, T_wheel, F_wheel, F_wheel_max, F_drive, F_drag, F_rr, F_net, car.a, car.v, car.s])
 
-
-    result.append([ t, car.engine.current_rpm, car.transmission.current_gear, T_eng, T_wheel, F_wheel, F_wheel_max, F_drive, F_drag, F_rr, F_net, car.a, car.v, car.s ])
-
-    step = step + 1
-    t = step * t_step
-
-  print("0-30mph: " + str(t_0_30) + "s")
-  print("0-60mph: " + str(t_0_60) + "s")
-  print("1/4 mi spd: " + str(v_1_4_m) + " mph")
-  print("1/4 mi: " + str(t_1_4_m) + "s")
-  print("0-100mph: " + str(t_0_100) + "s")
-  print("0-120mph: " + str(t_0_120) + "s")
-  print(car.transmission.current_gear)
-  print(car.engine.current_rpm)
-  print(car.v)
-  print(car.s)
+    logger.log(car.s, car.v, t)
+    t = t + t_step
 
   # print(result)
+  print(logger)
   with open("output.csv", "w") as f:
     writer = csv.writer(f)
     writer.writerows(result)
