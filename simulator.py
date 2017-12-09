@@ -19,9 +19,9 @@ class Wheel:
     self.I = (self.mass * self.radius**2 / 2)  * nb
 
   @staticmethod
-  def tire_spec_to_wheel_radius(tire_width, aspect_ratio, rim_diameter):
+  def tire_spec_to_wheel_radius(section_width, aspect_ratio, rim_diameter):
     # example : P225 / 45R17
-    return ((rim_diameter * 2.54 / 2) + (tire_width/10 * aspect_ratio/100)) / 100 # m
+    return ((rim_diameter * 2.54 / 2) + (section_width/10 * aspect_ratio/100)) / 100 # m
 
 class Transmission:
   def __init__(self,
