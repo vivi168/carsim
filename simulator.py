@@ -115,12 +115,13 @@ class Logger:
     summary = []
     for p in self.speed_points:
       if self.speed_summary[p]:
-        summary.append("0-%s mph: %.2fs" % (p, self.speed_summary[p]))
+        summary.append('{:<12} {:<6.2f} seconds'.format("0-%s mph" % p, self.speed_summary[p]))
 
     for p in self.position_points:
       if self.position_summary[p]:
-        summary.append("%s mi time: %.2f mph" % (fractions.Fraction(p), self.position_summary[p][0]))
-        summary.append("%s mi speed: %.2f s" % (fractions.Fraction(p), self.position_summary[p][1]))
+        summary.append(len(summary[0]) * '-')
+        summary.append('{:<12} {:<6.2f} seconds'.format(str(fractions.Fraction(p)) + " mi", self.position_summary[p][0]))
+        summary.append('{:<12} {:<6.2f} mph'.format(str(fractions.Fraction(p)) + " mi spd", self.position_summary[p][1]))
 
     return "\n".join(summary)
 
