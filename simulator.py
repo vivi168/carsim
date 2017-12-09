@@ -4,6 +4,7 @@ import csv
 import json
 import inspect
 import fractions
+import argparse
 
 class Constant:
   RHO = 1.205
@@ -139,10 +140,8 @@ class Logger:
       if not self.position_summary[p] and (s * Constant.MI_PER_M)  > p:
         self.position_summary[p] = [t, v * Constant.MPH_PER_MS]
 
-def main():
-
-  # car = Car.from_json('350z_2005.txt')
-  car = Car.from_json('vw_golf_gti_2007.json')
+def main(car_file):
+  car = Car.from_json(car_file)
 
   t_step = 0.01 # time step, s
   t_max = 360.0 # end time, s
@@ -193,4 +192,8 @@ def main():
 
 
 if __name__ == "__main__":
-  main()
+  parser = argparse.ArgumentParser(description='Compute car acceleration')
+  parser.add_argument('file_name', help='json file containing car data')
+  args = parser.parse_args()
+
+  main(args.file_name)
